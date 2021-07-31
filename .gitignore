@@ -1,0 +1,28 @@
+# Node-Red
+Server/node-red/node-red-heroku/.gitignore
+Server/node-red/node-red-heroku/.DS_Store
+Server/node-red/node-red-heroku/.bash_history
+Server/node-red/node-red-heroku/.bash_logout
+Server/node-red/node-red-heroku/.bashrc
+Server/node-red/node-red-heroku/.cache
+Server/node-red/node-red-heroku/.forever
+Server/node-red/node-red-heroku/.node-gyp
+Server/node-red/node-red-heroku/node_modules
+Server/node-red/node-red-heroku/.npm
+Server/node-red/node-red-heroku/.profile
+
+# Nodejs server
+Server/nodejs-server/.gitignore
+Server/nodejs-server/.DS_Store
+Server/nodejs-server/.bash_history
+Server/nodejs-server/.bash_logout
+Server/nodejs-server/.bashrc
+Server/nodejs-server/.cache
+Server/nodejs-server/.forever
+Server/nodejs-server/.node-gyp
+Server/nodejs-server/node_modules
+Server/nodejs-server/.npm
+Server/nodejs-server/.profile
+
+# png2bin
+Tools/png2bin/node_modules
