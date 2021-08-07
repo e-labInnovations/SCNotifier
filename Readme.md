@@ -14,8 +14,8 @@ Main project - 2020-21
 [![PCB Layout](Hardware/Hardware/PCB_Layout_Colour.png)](Hardware/Hardware/PCB_Layout_Colour.png)
 ### 3D View
 [Live View](https://elabins.com/SCNotifier/Hardware/Hardware/3D_Design/index.html)
-[![PCB 3D](Hardware/Hardware/3D_1.png)](Hardware/Hardware/3D_1.png)
-[![PCB 3D](Hardware/Hardware/3D_2.png)](Hardware/Hardware/3D_2.png)
+[![PCB 3D](Hardware/Hardware/3D_1.PNG)](Hardware/Hardware/3D_1.PNG)
+[![PCB 3D](Hardware/Hardware/3D_2.PNG)](/Hardware/Hardware/3D_2.PNG)
   
 ## Versions
 ### V4.0.0 
