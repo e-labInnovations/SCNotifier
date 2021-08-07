@@ -12,9 +12,27 @@
 
 #define FORMAT_SPIFFS_IF_FAILED false
 
-const char* SSID = "e-labinnovations";  // Your WiFi SSID
-const char* PASSWORD = "PASSWORD";      // Your WiFi Password
-const char* ServerURL = "scnotifier.herokuapp.com";
+/**** VGA PINS ****/
+#define VGA_RED_PIN   GPIO_NUM_12
+#define VGA_GREEN_PIN GPIO_NUM_14
+#define VGA_BLUE_PIN  GPIO_NUM_27
+#define VGA_HSYNC_PIN GPIO_NUM_26
+#define VGA_VSYNC_PIN GPIO_NUM_25
+
+/**** INPUTS ****/
+#define PREVIOUS_BUTTON 5
+#define SLECT_BUTTON    17
+#define NEXT_BUTTON     16
+#define VGA_IN          13
+
+/**** OUTPUTS ****/
+#define RED_LED   33
+#define GREEN_LED 23
+#define VGA_OUT   32
+
+const char* SSID      = "e-labinnovations";         // WiFi SSID
+const char* PASSWORD  = "PASSWORD";                 // WiFi Password
+const char* ServerURL = "scnotifier.herokuapp.com"; //Server Address
 
 fabgl::VGA16Controller VGAController;
 fabgl::Canvas cv(&VGAController);
@@ -27,14 +45,23 @@ unsigned long previousMillis = 0;
 long interval = 10000;
 bool first = true;
 
+
+bool PREVIOUS_BUTTON_past = true;
+bool SLECT_BUTTON_past    = true;
+bool NEXT_BUTTON_past     = true;
+bool VGA_IN_past          = true;
+
 void showNotification(uint8_t * json) {
   DeserializationError error = deserializeJson(doc, json);
   // Test if parsing succeeds.
   if (error) {
     Serial.print("deserializeJson() failed: ");
     Serial.println(error.f_str());
+    errorStatus(true);
     return;
   }
+
+  errorStatus(false);
 
   const char* time = doc["time"];
   previousMillis = millis();
@@ -151,7 +178,7 @@ void showNotification(uint8_t * json) {
       drawText(&fabgl::FONT_8x14, X + 17, 345, H_precipValue);
     }
   } else {
-
+    errorStatus(true);
   }
 
 }
@@ -160,9 +187,11 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
   switch (type) {
     case WStype_DISCONNECTED:
       Serial.printf("[WSc] Disconnected!\n");
+      errorStatus(true);
       break;
     case WStype_CONNECTED:
       Serial.printf("[WSc] Connected to url: %s\n", payload);
+      errorStatus(false);
       if (first) {
         cv.drawTextFmt(10, 390, "Server [WS] Connected to url: %s%s", ServerURL, payload);
         first = false;
@@ -170,7 +199,13 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
       }
 
       // send message to server when Connected
-      webSocket.sendTXT("connected");
+      if (digitalRead(VGA_IN)) {
+        webSocket.sendTXT("{\"type\":\"status_update\", \"vgaIn\":false}");
+      } else {
+        webSocket.sendTXT("{\"type\":\"status_update\", \"vgaIn\":true}");
+      }
+
+      webSocket.sendTXT("{\"type\":\"command\", \"command\":\"connected\"}");
       break;
     case WStype_TEXT:
       Serial.printf("[WSc] get text: %s\n", payload);
@@ -215,6 +250,7 @@ void setupWiFi() {
 
   WiFi.begin(SSID, PASSWORD);
   int pos = 1;
+  errorStatus(true);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     showWiFiLoading(pos);
@@ -224,10 +260,11 @@ void setupWiFi() {
   }
   Serial.print("\nConnected");
   cv.drawText(10, 315, "Connected");
+  errorStatus(false);
 }
 
 void setupVGA() {
-  VGAController.begin(GPIO_NUM_12, GPIO_NUM_27, GPIO_NUM_14, GPIO_NUM_26, GPIO_NUM_25);
+  VGAController.begin(VGA_RED_PIN, VGA_BLUE_PIN, VGA_GREEN_PIN, VGA_HSYNC_PIN, VGA_VSYNC_PIN);
   VGAController.setResolution(VGA_640x480_60Hz);
 
   sprites[0].addBitmap(&wifi);
@@ -255,8 +292,23 @@ void setupVGA() {
 
 void setup() {
   Serial.begin(115200);
+
+  pinMode(PREVIOUS_BUTTON, INPUT_PULLUP);
+  pinMode(SLECT_BUTTON, INPUT_PULLUP);
+  pinMode(NEXT_BUTTON, INPUT_PULLUP);
+  pinMode(VGA_IN, INPUT_PULLUP);
+
+  pinMode(RED_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(VGA_OUT, OUTPUT);
+
+  digitalWrite(RED_LED, LOW);
+  digitalWrite(GREEN_LED, LOW);
+  digitalWrite(VGA_OUT, LOW);
+
   if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) {
     Serial.println("SPIFFS Mount Failed");
+    errorStatus(true);
     return;
   }
   setupVGA();
@@ -272,8 +324,43 @@ void loop() {
 
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
-    webSocket.sendTXT("next");
+    webSocket.sendTXT("{\"type\":\"command\", \"command\":\"next\"}");
+
+    digitalWrite(RED_LED, !digitalRead(RED_LED));
+    digitalWrite(GREEN_LED, !digitalRead(GREEN_LED));
+
+    Serial.print("INPUTS -> P: ");
+    Serial.print(digitalRead(PREVIOUS_BUTTON));
+    Serial.print(" S: ");
+    Serial.print(digitalRead(SLECT_BUTTON));
+    Serial.print(" N: ");
+    Serial.print(digitalRead(NEXT_BUTTON));
+    Serial.print(" V: ");
+    Serial.println(digitalRead(VGA_IN));
   }
+
+  bool PREVIOUS_BUTTON_present  = digitalRead(PREVIOUS_BUTTON);
+  bool SLECT_BUTTON_present     = digitalRead(SLECT_BUTTON);
+  bool NEXT_BUTTON_present      = digitalRead(NEXT_BUTTON);
+  bool VGA_IN_present           = digitalRead(VGA_IN);
+
+  if (!PREVIOUS_BUTTON_present && PREVIOUS_BUTTON_past) {
+    webSocket.sendTXT("{\"type\":\"command\", \"command\":\"previous\"}");
+  }
+  if (!NEXT_BUTTON_present && NEXT_BUTTON_past) {
+    webSocket.sendTXT("{\"type\":\"command\", \"command\":\"next\"}");
+  }
+
+  digitalWrite(VGA_OUT, !VGA_IN_present);
+  if (VGA_IN_present != VGA_IN_past) {
+    String vgaStatus = VGA_IN_present ? "false" : "true";
+    webSocket.sendTXT("{\"type\":\"status_update\", \"vgaIn\":" + vgaStatus + "}");
+  }
+
+
+  PREVIOUS_BUTTON_past  = PREVIOUS_BUTTON_present;
+  NEXT_BUTTON_past      = NEXT_BUTTON_present;
+  VGA_IN_past           = VGA_IN_present;
 }
 
 void drawText(fabgl::FontInfo const * fontInfo, int X, int Y, char const * text) {
@@ -363,5 +450,15 @@ void drawFile(int x, int y, const char *filename) {
     }
   } else {
     Serial.println("File not found");
+  }
+}
+
+void errorStatus(bool isError) {
+  if (isError) {
+    digitalWrite(RED_LED, HIGH);
+    digitalWrite(GREEN_LED, LOW);
+  } else {
+    digitalWrite(RED_LED, LOW);
+    digitalWrite(GREEN_LED, HIGH);
   }
 }
