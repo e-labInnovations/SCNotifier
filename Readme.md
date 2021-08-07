@@ -10,9 +10,12 @@ Main project - 2020-21
 ### Schematic
 [![SCNotifier Schematic](Hardware/Hardware/Schematic_Notifier_Board.png)](Hardware/Hardware/Schematic_Notifier_Board.png)
 ### PCB Layout
-[PCB_Layout.pdf] (Hardware/Hardware/PCB_Layout.pdf)
+[PCB_Layout.pdf](Hardware/Hardware/PCB_Layout.pdf)
+[![PCB Layout](Hardware/Hardware/PCB_Layout_Colour.png)](Hardware/Hardware/PCB_Layout_Colour.png)
 ### 3D View
-[View] (https://htmlpreview.github.io/?https://github.com/e-labInnovations/SCNotifier/blob/main/Hardware/Hardware/3D_Design/index.html)
+[Live View](https://elabins.com/SCNotifier/Hardware/Hardware/3D_Design/index.html)
+[![PCB 3D](Hardware/Hardware/3D_1.png)](Hardware/Hardware/3D_1.png)
+[![PCB 3D](Hardware/Hardware/3D_2.png)](Hardware/Hardware/3D_2.png)
   
 ## Versions
 ### V4.0.0 
@@ -30,7 +33,7 @@ Main project - 2020-21
     * sbte notification
     * sittter notification
     * current weather details
-  * **_IR reeiver not working_**
+  * **_IR receiver not working_**
     
 ### V3.0.0 (abandoned)
   * FabGl library with canvas for VGA
