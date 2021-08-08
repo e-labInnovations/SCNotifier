@@ -12,6 +12,8 @@ Main project - 2020-21
 ### PCB Layout
 [PCB_Layout.pdf](Hardware/Hardware/PCB_Layout.pdf)
 [![PCB Layout](Hardware/Hardware/PCB_Layout_Colour.png)](Hardware/Hardware/PCB_Layout_Colour.png)
+[![PCB Layout Bootum](Hardware/Hardware/PCB_Layout_BottomCopper.png)](Hardware/Hardware/PCB_Layout_BottomCopper.png)
+[![PCB Layout Top Silk](Hardware/Hardware/PCB_Layout_TopSilk.png)](Hardware/Hardware/PCB_Layout_TopSilk.png)
 ### 3D View
 [Live View](https://elabins.com/SCNotifier/Hardware/Hardware/3D_Design/index.html)
 [![PCB 3D](Hardware/Hardware/3D_1.PNG)](Hardware/Hardware/3D_1.PNG)
